@@ -1,0 +1,22 @@
+# Get current date
+$currentDate = Get-Date
+
+# Get all user profiles
+$profiles = Get-WmiObject -Class Win32_UserProfile
+
+foreach ($profile in $profiles)
+{
+    # Convert last use time to a .NET DateTime object
+    $lastUseTime = [Management.ManagementDateTimeConverter]::ToDateTime($profile.LastUseTime)
+
+    # Check if the profile has been used in the last 60 days
+    if ($lastUseTime -lt $currentDate.AddDays(-60))
+    {
+        # Check if the profile is not a special profile
+        if ($profile.Special -eq $false)
+        {
+            # Delete the profile
+            $profile.Delete()
+        }
+    }
+}
